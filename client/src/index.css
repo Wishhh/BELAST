@@ -1,0 +1,852 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Outfit:wght@400;600;700&display=swap');
+
+/* ── Design Tokens ──────────────────────────────────────── */
+:root {
+  --bg-gradient: linear-gradient(180deg, #4FC3F7 0%, #7E57C2 60%, #5C35A8 100%);
+  --frame-bg: linear-gradient(145deg, #4a4a5a, #2a2a3a);
+  --frame-border: #5e5e70;
+  --frame-highlight: rgba(255, 255, 255, 0.12);
+  --grid-inner-bg: rgba(15, 22, 45, 0.88);
+  --grid-line: rgba(80, 200, 255, 0.08);
+  --tray-bg: rgba(100, 180, 255, 0.18);
+  --tray-border: rgba(255, 255, 255, 0.25);
+  --badge-bg: linear-gradient(135deg, #9C27B0, #7B1FA2);
+  --btn-gradient: linear-gradient(135deg, #FF9800, #F57C00);
+  --btn-hover: linear-gradient(135deg, #FFB74D, #FF9800);
+  --text-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  --glow-cyan: 0 0 20px rgba(0, 200, 255, 0.25);
+
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  line-height: 1.4;
+  font-weight: 400;
+  color: #fff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* Prevent full-page mobile scroll (bounce) */
+}
+
+body {
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  touch-action: none;
+  /* Disable pull-to-refresh and pan natively */
+}
+
+a {
+  color: #90CAF9;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #BBDEFB;
+}
+
+/* ── App Layout ─────────────────────────────────────────── */
+
+.App {
+  width: 100%;
+  height: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  /* Ensures it sits in the middle horizontally */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Ensures it sits in the middle vertically */
+  padding: env(safe-area-inset-top, 1rem) 0.5rem env(safe-area-inset-bottom, 1rem);
+  box-sizing: border-box;
+  position: relative;
+}
+
+.game-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  color: #fff;
+  text-shadow:
+    0 2px 0 #E65100,
+    0 4px 0 #BF360C,
+    0 6px 12px rgba(0, 0, 0, 0.3);
+  letter-spacing: 3px;
+  margin: 0.3rem 0 0.6rem;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* ── Score Badge ────────────────────────────────────────── */
+
+.score-badge {
+  background: var(--badge-bg);
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 4px 15px rgba(156, 39, 176, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  position: relative;
+}
+
+.score-badge .score-label {
+  font-family: 'Fredoka One', cursine;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.85;
+}
+
+.score-badge .score-value {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.5rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.score-badge .score-stars {
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  margin-top: 2px;
+}
+
+/* ── Game Area ──────────────────────────────────────────── */
+
+.game-area {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1.5rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.player-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.8rem;
+  width: 100%;
+  max-width: 380px;
+  position: relative;
+}
+
+/* ── Grid Frame ─────────────────────────────────────────── */
+
+.grid-frame {
+  background: var(--frame-bg);
+  border: 3px solid var(--frame-border);
+  border-radius: 14px;
+  padding: 8px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 var(--frame-highlight),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.grid-frame canvas {
+  display: block;
+  border-radius: 8px;
+}
+
+/* ── Floating Score Text ────────────────────────────────── */
+
+.floating-score-container {
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+/* ── "NEXT BLOCK" + Piece Tray ──────────────────────────── */
+
+.next-block-label {
+  font-family: 'Fredoka One', cursive;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.75);
+  text-align: center;
+  margin: 12px 0 6px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.piece-tray {
+  background: var(--tray-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid var(--tray-border);
+  border-radius: 16px;
+  padding: 12px 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  min-height: 80px;
+  /* Crucial for Safari mobile SVG wrappers */
+}
+
+.piece-container {
+  transition: transform 0.15s ease;
+}
+
+.piece-container:hover {
+  transform: scale(1.08);
+}
+
+.piece-container:active {
+  transform: scale(0.95);
+}
+
+/* ── Find Match Button ──────────────────────────────────── */
+
+.find-match-btn {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.3rem;
+  padding: 14px 36px;
+  border: none;
+  border-radius: 50px;
+  background: var(--btn-gradient);
+  color: #fff;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  box-shadow:
+    0 4px 15px rgba(255, 152, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.find-match-btn:hover {
+  background: var(--btn-hover);
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 20px rgba(255, 152, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.find-match-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Game Over Overlay ──────────────────────────────────── */
+
+.game-over-text {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.4rem;
+  color: #FF5252;
+  text-shadow: 0 2px 8px rgba(255, 0, 0, 0.3);
+  margin: 0.3rem 0;
+  animation: pulse-red 1s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-red {
+  from {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* ── Opponent Section ───────────────────────────────────── */
+
+.opponent-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 0;
+}
+
+.opponent-frame {
+  background: var(--frame-bg);
+  border: 2px solid var(--frame-border);
+  border-radius: 10px;
+  padding: 5px;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 var(--frame-highlight);
+}
+
+.opponent-frame canvas {
+  display: block;
+  border-radius: 6px;
+}
+
+.opponent-label {
+  font-family: 'Fredoka One', cursive;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  margin-bottom: 6px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.opponent-score {
+  font-family: 'Fredoka One', cursive;
+  font-size: 0.75rem;
+  text-align: center;
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── Exit Button ────────────────────────────────────────── */
+
+.exit-btn {
+  position: absolute;
+  right: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #EF5350, #C62828);
+  color: #fff;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 3px 10px rgba(198, 40, 40, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.exit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 5px 15px rgba(198, 40, 40, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.exit-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Drag Overlay ───────────────────────────────────────── */
+
+.drag-overlay {
+  opacity: 0.85;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+  transition: none;
+  /* no transition — pure rAF positioning */
+}
+
+/* ── Score Float Animation ──────────────────────────────── */
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .App {
+    padding: 0.5rem 0.25rem 1rem;
+  }
+
+  .game-area {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .game-title {
+    font-size: 1.8rem;
+    margin: 0.2rem 0 0.4rem;
+  }
+
+  .top-bar {
+    gap: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .score-badge {
+    width: 70px;
+    height: 70px;
+  }
+
+  .score-badge .score-value {
+    font-size: 1.1rem;
+  }
+
+  .score-badge .score-label {
+    font-size: 0.5rem;
+  }
+
+  .score-badge .score-stars {
+    font-size: 0.55rem;
+  }
+
+  .grid-frame {
+    padding: 6px;
+    border-radius: 10px;
+    border-width: 2px;
+  }
+
+  .piece-tray {
+    padding: 10px 12px;
+    gap: 10px;
+    border-radius: 12px;
+  }
+
+  .next-block-label {
+    margin: 8px 0 4px;
+    font-size: 0.75rem;
+  }
+
+  .find-match-btn {
+    font-size: 1.1rem;
+    padding: 12px 28px;
+  }
+
+  .exit-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .App {
+    padding: 0.3rem 0.15rem 0.6rem;
+  }
+
+  .game-title {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    margin: 0.15rem 0 0.3rem;
+  }
+
+  .score-badge {
+    width: 60px;
+    height: 60px;
+  }
+
+  .score-badge .score-value {
+    font-size: 0.95rem;
+  }
+
+  .score-badge .score-label {
+    font-size: 0.45rem;
+  }
+
+  .score-badge .score-stars {
+    font-size: 0.5rem;
+  }
+
+  .grid-frame {
+    padding: 4px;
+    border-radius: 8px;
+  }
+
+  .piece-tray {
+    padding: 8px 8px;
+    gap: 6px;
+    border-radius: 10px;
+  }
+
+  .next-block-label {
+    margin: 6px 0 3px;
+    font-size: 0.65rem;
+  }
+
+  .game-over-text {
+    font-size: 1.1rem;
+  }
+
+  .find-match-btn {
+    font-size: 0.95rem;
+    padding: 10px 22px;
+  }
+}
+
+@media (max-width: 380px) {
+  .game-title {
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+  }
+
+  .score-badge {
+    width: 52px;
+    height: 52px;
+  }
+
+  .score-badge .score-value {
+    font-size: 0.85rem;
+  }
+
+  .grid-frame {
+    padding: 3px;
+  }
+
+  .piece-tray {
+    padding: 6px;
+    gap: 4px;
+  }
+}
+
+/* ── Touch-specific ─────────────────────────────────────── */
+
+@media (hover: none) and (pointer: coarse) {
+  .piece-container {
+    /* Slightly larger tap targets on touch devices */
+    padding: 4px;
+  }
+
+  .piece-container:hover {
+    transform: none;
+    /* Disable hover effect on touch */
+  }
+
+  .piece-container:active {
+    transform: scale(0.92);
+  }
+
+  .exit-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ── Auth Modal ─────────────────────────────────────────── */
+
+.auth-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.auth-modal {
+  background: var(--frame-bg);
+  border: 2px solid var(--frame-border);
+  padding: 2rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+}
+
+.auth-modal h2 {
+  font-family: 'Fredoka One', cursive;
+  margin-top: 0;
+  margin-bottom: 30px;
+  letter-spacing: 1px;
+}
+
+.auth-modal .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.auth-modal .close-btn:hover {
+  opacity: 1;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 15px;
+}
+
+.auth-form input {
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.2);
+  color: white;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: #4FC3F7;
+}
+
+.auth-form .submit-btn {
+  padding: 14px;
+  border-radius: 8px;
+  border: none;
+  background: var(--btn-gradient);
+  color: white;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.1rem;
+  cursor: pointer;
+  margin-top: 10px;
+  text-transform: uppercase;
+}
+
+.auth-form .submit-btn:hover {
+  background: var(--btn-hover);
+}
+
+.auth-form .submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toggle-auth {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.toggle-auth span {
+  color: #4FC3F7;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.toggle-auth span:hover {
+  color: #BBDEFB;
+}
+
+.error-msg {
+  color: #FF5252;
+  background: rgba(255, 82, 82, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  width: 100%;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* ── Profile Section (Top Left) ─────────────────────────── */
+.profile-bar {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
+
+.auth-trigger-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(5px);
+}
+
+.auth-trigger-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Loading Overlay ────────────────────────────────────── */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 22, 45, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  border-radius: 14px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #4FC3F7;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cancel-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.cancel-btn:hover {
+  background: rgba(244, 67, 54, 0.5);
+}
+
+/* ── Profile Tabs ────────────────────────────────────────── */
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 12px 10px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+  color: #4FC3F7;
+  border-bottom: 2px solid #4FC3F7;
+  background: rgba(79, 195, 247, 0.1);
+}
+
+/* Custom Scrollbar for tab content */
+.tab-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.tab-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Mobile Overrides ────────────────────────────────────── */
+@media (max-width: 640px) {
+  .game-area {
+    position: relative;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .opponent-section {
+    position: absolute;
+    top: -177px;
+    right: 5px;
+    z-index: 90;
+    pointer-events: none;
+    /* Don't block dragging */
+  }
+
+  .opponent-wrapper {
+    flex-direction: row !important;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .opponent-label {
+    flex-direction: column !important;
+    align-items: flex-end !important;
+  }
+
+  .opponent-section .opp-name {
+    font-size: 0.8rem !important;
+  }
+
+  .opponent-section .opp-elo {
+    font-size: 0.65rem !important;
+  }
+
+  .opponent-section .opponent-score {
+    font-size: 0.8rem !important;
+    font-weight: bold;
+  }
+
+  .piece-queue {
+    min-height: 80px;
+    /* Forces flex height on iOS */
+  }
+}
