@@ -24,7 +24,7 @@ To run BeLast locally, follow these steps:
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/belast.git
+   git clone https://github.com/Wishhh/belast.git
    ```
 
 2. Install dependencies for both the client and server:
