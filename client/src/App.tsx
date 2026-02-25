@@ -42,7 +42,11 @@ function App() {
 
   const handleStart = () => {
     if (!networkManagerRef.current) {
-      const serverUrl = `http://${window.location.hostname}:3000`;
+      // Use explicit server URL if provided (for production), otherwise fallback to local development port
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const defaultLocalUrl = `http://${window.location.hostname}:3000`;
+      const serverUrl = import.meta.env.VITE_SERVER_URL || (isLocalhost ? defaultLocalUrl : window.location.origin);
+
       networkManagerRef.current = new NetworkManager(serverUrl);
       networkManagerRef.current.connect();
 
